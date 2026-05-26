@@ -9,12 +9,16 @@ import { fetchStudentData } from '@/utils/studentData'
 import { useAllBackgroundsForDevice, useBackgroundForScene } from '@/hooks/useResponsiveAsset'
 import { usePreloadAssets } from '@/hooks/usePreloadAssets'
 import { ANIMATION_CONFIG } from '@/config/animationConfig'
-import type { ExperienceStage } from '@/types'
-import type { StudentData } from '@/types'
+import type { ExperienceStage, StudentData } from '@/types'
 
 export default function ExperiencePage() {
   const { studentId } = useParams<{ studentId: string }>()
-  const [stage, setStage] = useState<ExperienceStage>('waiting')
+
+  // ── Flow control ────────────────────────────────────────────
+  // Mode A (skipWaitingScreen: false): login → waiting → final
+  // Mode B (skipWaitingScreen: true):  login → final
+  const initialStage: ExperienceStage = ANIMATION_CONFIG.skipWaitingScreen ? 'final' : 'waiting'
+  const [stage, setStage] = useState<ExperienceStage>(initialStage)
   const [studentData, setStudentData] = useState<StudentData | null>(null)
 
   const allBackgrounds = useAllBackgroundsForDevice()
@@ -24,13 +28,20 @@ export default function ExperiencePage() {
 
   const cinematicBg = useBackgroundForScene('cinematic')
 
-  // Fetch student data on mount
   useEffect(() => {
     if (!studentId) return
     fetchStudentData(studentId).then(setStudentData)
   }, [studentId])
 
-  const handleWaitingOpened = () => setStage('character')
+  // After the door opens: skip stopmotion → go straight to final
+  const handleWaitingOpened = () => {
+    if (ANIMATION_CONFIG.skipStopmotion) {
+      setStage('final')
+    } else {
+      setStage('character')
+    }
+  }
+
   const handleCharacterComplete = () => setStage('final')
 
   return (
@@ -41,7 +52,7 @@ export default function ExperiencePage() {
       animate="visible"
       exit="exit"
     >
-      {/* Preloading overlay (only if assets haven't loaded yet) */}
+      {/* Preloading overlay */}
       {preloadStatus === 'loading' && (
         <div className="absolute inset-0 z-[100] bg-deepNavy flex items-center justify-center">
           <motion.p
@@ -54,7 +65,7 @@ export default function ExperiencePage() {
         </div>
       )}
 
-      {/* Background already visible behind the doors */}
+      {/* Background behind the doors */}
       {stage === 'waiting' && (
         <div
           className="absolute inset-0 z-0"
@@ -67,17 +78,14 @@ export default function ExperiencePage() {
         />
       )}
 
-      {/* Waiting split-door layer */}
       {stage === 'waiting' && (
         <WaitingScreen onOpened={handleWaitingOpened} />
       )}
 
-      {/* Stage: Running character cinematic */}
       {stage === 'character' && (
         <CharacterScene onComplete={handleCharacterComplete} />
       )}
 
-      {/* Stage: Final Secret Document reveal — mount immediately so it's ready under the cream */}
       {stage === 'final' && (
         <SecretDocument studentData={studentData} />
       )}

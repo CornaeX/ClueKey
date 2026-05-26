@@ -52,3 +52,20 @@ export async function fetchStudentData(studentId: string): Promise<StudentData> 
 export function validateStudentId(id: string): boolean {
   return id.trim().length >= 4
 }
+
+/**
+ * Check if a student ID actually exists in the database.
+ * Returns true if found, false if not found.
+ */
+export async function checkStudentExists(studentId: string): Promise<boolean> {
+  try {
+    const res = await fetch('/data/students.json')
+    if (!res.ok) return false
+    const db: StudentsJsonDatabase = await res.json()
+    return db.students.some(
+      (s) => s.id.toLowerCase() === studentId.trim().toLowerCase(),
+    )
+  } catch {
+    return false
+  }
+}

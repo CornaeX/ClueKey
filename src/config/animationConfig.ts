@@ -5,6 +5,17 @@
 // ============================================================
 
 export const ANIMATION_CONFIG = {
+  // ── FLOW CONTROL ──────────────────────────────────────────
+  // skipWaitingScreen:
+  //   false → Mode A: login → waiting → final   (default)
+  //   true  → Mode B: login → final
+  skipWaitingScreen: false,
+
+  // skipStopmotion (only applies when skipWaitingScreen is false):
+  //   true  → waiting → (click) → final        (stopmotion skipped)
+  //   false → waiting → (click) → stopmotion → final
+  skipStopmotion: true,
+
   // ── PAGE TRANSITIONS ──────────────────────────────────────
   pageTransition: {
     duration: 0.8,
