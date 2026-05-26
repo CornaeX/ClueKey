@@ -82,7 +82,7 @@ See `public/ASSETS_README.md` for full details.
 
 1. Place `bg1.jpg`–`bg4.jpg` in each of: `public/backgrounds/desktop|tablet|mobile/`
 2. Place `gear.png` in `public/images/`
-3. Place `character.webm` (transparent VP9) in `public/videos/`
+3. Place your cinematic sequence images (e.g. `Act1.png` to `Act5.png`) in `public/images/`
 
 ## Responsive
 

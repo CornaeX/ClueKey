@@ -27,9 +27,11 @@ public/
   images/
     gear.png     ← Your single gear image (used for both gears)
     logo.png     ← (Optional) Replace SVG in LogoDisplay.tsx
-
-  videos/
-    character.webm  ← Transparent character running animation
+    Act1.png
+    Act2.png
+    Act3.png
+    Act4.png
+    Act5.png     ← Cinematic sequence frame images
 ```
 
 ### Scene Index
@@ -37,7 +39,7 @@ public/
 |--------|----------|-------|
 | login  | bg1.jpg  | Login page fullscreen bg |
 | waiting| bg2.jpg  | Shown in split door panels |
-| cinematic | bg3.jpg | Behind character webm |
+| cinematic | bg3.jpg | Behind character image sequence |
 | reveal | bg4.jpg  | Final Secret Document bg |
 
 ### Gear PNG Tips
@@ -47,7 +49,7 @@ public/
 - The teeth interlock based on size ratio. Ensure your gear PNG has visible teeth.
 - `filter: invert(1)` is applied to make it work on dark backgrounds — remove if your gear is light-colored.
 
-### Character WEBM Tips
-- Must be a transparent WebM (VP9 codec with alpha channel).
-- The character should start small (far back) and move toward the camera.
-- Duration: ~4 seconds (configurable in `src/config/animationConfig.ts`).
+### Cinematic Image Sequence Tips
+- Place your sequential frames (`Act1.png`, `Act2.png`, etc.) inside `public/images/`.
+- Configure the individual display duration (delay) and image sources in `src/config/animationConfig.ts` under the `character.sequence` array.
+- Scale and fade timings (e.g. initialScale, finalScale, scaleDuration, fadeOutDuration) are also fully tunable in the same file.

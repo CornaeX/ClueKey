@@ -2,18 +2,20 @@ import type { Variants } from 'framer-motion'
 import { ANIMATION_CONFIG } from '@/config/animationConfig'
 
 const { character, creamReveal } = ANIMATION_CONFIG
+const characterFadeOutDelay = character.sequence.reduce((acc, item) => acc + item.duration, 0)
+const desktopScale = character.scale.desktop
 
 export const characterScaleVariants: Variants = {
   enter: {
-    scale: character.initialScale,
+    scale: desktopScale * 0.3,
     opacity: 1,
   },
   running: {
-    scale: character.finalScale,
+    scale: desktopScale,
     opacity: 1,
     transition: {
       scale: {
-        duration: character.scaleDuration,
+        duration: 3.8,
         ease: [0.16, 1, 0.3, 1],
       },
     },
@@ -22,7 +24,7 @@ export const characterScaleVariants: Variants = {
     opacity: 0,
     transition: {
       duration: character.fadeOutDuration,
-      delay: character.fadeOutDelay,
+      delay: characterFadeOutDelay,
       ease: 'easeOut',
     },
   },

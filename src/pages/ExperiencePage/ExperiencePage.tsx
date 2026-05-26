@@ -8,6 +8,7 @@ import SecretDocument from '@/components/reveal/SecretDocument'
 import { fetchStudentData } from '@/utils/studentData'
 import { useAllBackgroundsForDevice, useBackgroundForScene } from '@/hooks/useResponsiveAsset'
 import { usePreloadAssets } from '@/hooks/usePreloadAssets'
+import { ANIMATION_CONFIG } from '@/config/animationConfig'
 import type { ExperienceStage } from '@/types'
 import type { StudentData } from '@/types'
 
@@ -17,7 +18,9 @@ export default function ExperiencePage() {
   const [studentData, setStudentData] = useState<StudentData | null>(null)
 
   const allBackgrounds = useAllBackgroundsForDevice()
-  const { status: preloadStatus } = usePreloadAssets(allBackgrounds)
+  const characterImages = ANIMATION_CONFIG.character.sequence.map((item) => item.src)
+  const preloadAssets = [...allBackgrounds, ...characterImages]
+  const { status: preloadStatus } = usePreloadAssets(preloadAssets)
 
   const cinematicBg = useBackgroundForScene('cinematic')
 

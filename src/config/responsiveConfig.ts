@@ -49,5 +49,4 @@ export const GEAR_IMAGE = '/images/gearv2.png'
 export const STUDENT_ID_ICON = '/images/student-id-icon.png'
 export const STUDENT_ID_TEXT = '/images/student-id-text.png'
 
-// Character webm path
-export const CHARACTER_WEBM = '/videos/character.webm'
+

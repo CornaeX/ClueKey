@@ -1,39 +1,60 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ANIMATION_CONFIG } from '@/config/animationConfig'
-import { CHARACTER_WEBM } from '@/config/responsiveConfig'
-import { useBackgroundForScene } from '@/hooks/useResponsiveAsset'
+import { useBackgroundForScene, useDeviceType } from '@/hooks/useResponsiveAsset'
 
 interface CharacterSceneProps {
   onComplete: () => void
 }
 
 export default function CharacterScene({ onComplete }: CharacterSceneProps) {
-  const videoRef = useRef<HTMLVideoElement>(null)
+  const [currentIndex, setCurrentIndex] = useState(0)
   const [showCream, setShowCream] = useState(false)
   const [sceneDone, setSceneDone] = useState(false)
   const bgSrc = useBackgroundForScene('cinematic')
+  const deviceType = useDeviceType()
+
   const { character, creamReveal } = ANIMATION_CONFIG
+  const { sequence, scale, yOffset, slideEase, fadeOutDuration } = character
+
+  // Dynamic responsive scale and positioning configurations
+  const deviceScale = scale[deviceType] || scale.desktop
+  const deviceYOffset = yOffset?.[deviceType] || yOffset?.desktop || '0px'
 
   useEffect(() => {
-    const fadeOutAt = (character.fadeOutDelay + character.fadeOutDuration) * 1000
-    const creamAt = character.fadeOutDelay * 1000
+    let accumulatedTime = 0
+    const timers: ReturnType<typeof setTimeout>[] = []
+
+    // Schedule frame transitions for each image in the sequence
+    sequence.forEach((_, idx) => {
+      if (idx === 0) return // First frame is active initially
+
+      accumulatedTime += sequence[idx - 1].duration * 1000
+      const timer = setTimeout(() => {
+        setCurrentIndex(idx)
+      }, accumulatedTime)
+      timers.push(timer)
+    })
+
+    // Total sequence duration
+    const totalSequenceDuration = accumulatedTime + sequence[sequence.length - 1].duration * 1000
+
+    // Fade out and cream flash timings are relative to sequence completion
+    const fadeOutDelay = totalSequenceDuration
+    const creamAt = fadeOutDelay
 
     const creamTimer = setTimeout(() => setShowCream(true), creamAt)
     const doneTimer = setTimeout(() => {
       setSceneDone(true)
       onComplete()
-    }, fadeOutAt + creamReveal.overlayFadeDuration * 1000 + 300)
+    }, fadeOutDelay + fadeOutDuration * 1000 + creamReveal.overlayFadeDuration * 1000 + 300)
+
+    timers.push(creamTimer, doneTimer)
 
     return () => {
-      clearTimeout(creamTimer)
-      clearTimeout(doneTimer)
+      timers.forEach(clearTimeout)
     }
-  }, [])
-
-  useEffect(() => {
-    videoRef.current?.play().catch(() => {})
-  }, [])
+  }, [onComplete, sequence, fadeOutDuration, creamReveal.overlayFadeDuration])
 
   if (sceneDone) return null
 
@@ -50,33 +71,35 @@ export default function CharacterScene({ onComplete }: CharacterSceneProps) {
         }}
       />
 
-      {/* Character webm — transparent, centered, scaling in */}
+      {/* Character sequence wrapper — scales and offsets vertically based on deviceType, fades out at sequence end */}
       <motion.div
-        className="absolute inset-0 flex items-center justify-center"
-        initial={{ scale: character.initialScale, opacity: 1 }}
+        className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
+        initial={{ scale: deviceScale, y: deviceYOffset, opacity: 1 }}
         animate={{
-          scale: character.finalScale,
+          scale: deviceScale, // Static responsive scale, avoiding center popping
+          y: deviceYOffset,   // Responsive vertical positioning offset
           opacity: showCream ? 0 : 1,
         }}
         transition={{
-          scale: {
-            duration: character.scaleDuration,
-            ease: [0.16, 1, 0.3, 1],
-          },
           opacity: {
-            duration: character.fadeOutDuration,
+            duration: fadeOutDuration,
             ease: 'easeOut',
           },
         }}
         style={{ willChange: 'transform, opacity' }}
       >
-        <video
-          ref={videoRef}
-          src={CHARACTER_WEBM}
+        {/* The first frame slides in from the right; subsequent frames swap instantly */}
+        <motion.img
+          src={sequence[currentIndex].src}
+          alt={`Character Frame ${currentIndex + 1}`}
           className="w-full h-full object-contain max-w-2xl max-h-full"
-          muted
-          playsInline
-          preload="auto"
+          initial={currentIndex === 0 ? { x: '100vw' } : { x: 0 }}
+          animate={{ x: 0 }}
+          transition={
+            currentIndex === 0
+              ? { duration: sequence[0].duration, ease: slideEase ? [...slideEase] : [0.25, 0.85, 0.45, 1.0] }
+              : { duration: 0 }
+          }
         />
       </motion.div>
 

@@ -38,14 +38,29 @@ export const ANIMATION_CONFIG = {
     splitOriginX: '55%',           // split starts slightly right of center
   },
 
-  // ── RUNNING CHARACTER (webm) ──────────────────────────────
+  // ── RUNNING CHARACTER (image sequence) ────────────────────
   character: {
-    duration: 6.0,                 // webm clip duration (s)
-    initialScale: 0.15,
-    finalScale: 1.0,
-    scaleDuration: 3.8,
+    sequence: [
+      { src: '/images/Act1.png', duration: 2.5 }, // slide-in duration
+      { src: '/images/Act2.png', duration: 1.0 },
+      { src: '/images/Act3.png', duration: 1.0 },
+      { src: '/images/Act4.png', duration: 1.0 },
+      { src: '/images/Act5.png', duration: 1.0 },
+    ],
+    // Responsive scale configurations per device (PC and Mobile)
+    scale: {
+      desktop: 0.6, // Scale for PC (desktop) version
+      tablet: 0.85, // Scale for Tablet version
+      mobile: 0.65, // Scale for Mobile version
+    },
+    // Responsive vertical positioning offset (adjust up/down; supports px, %, etc.)
+    yOffset: {
+      desktop: '100px',  // PC vertical offset (negative moves up, positive down)
+      tablet: '0px',   // Tablet vertical offset
+      mobile: '0px',   // Mobile vertical offset
+    },
+    slideEase: [0.25, 0.85, 0.45, 1.0] as const, // Smooth ease curve (moderate fast start, gentle deceleration, short hold)
     fadeOutDuration: 0.8,
-    fadeOutDelay: 4.5,
   },
 
   // ── CREAM OVERLAY → BACKGROUND REVEAL ────────────────────
