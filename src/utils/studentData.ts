@@ -1,25 +1,50 @@
-import type { StudentData } from '@/types'
+import type { StudentData, StudentJsonEntry, StudentsJsonDatabase } from '@/types'
+import studentsDb from '@/data/students.json'
 
-// Mock student database — replace with real API call
-const MOCK_HINTS = [
-  { id: 'h1', label: 'คำใบ้ 1', daysLeft: 3, isUnlocked: true },
-  { id: 'h2', label: 'คำใบ้ 2', daysLeft: 7, isUnlocked: true },
-  { id: 'h3', label: 'คำใบ้ 3', daysLeft: 14, isUnlocked: false },
-  { id: 'h4', label: 'คำใบ้ 4', daysLeft: 21, isUnlocked: false },
-  { id: 'h5', label: 'คำใบ้ 5', daysLeft: 30, isUnlocked: false },
-  { id: 'h6', label: 'คำใบ้ 6', daysLeft: 60, isUnlocked: false },
-]
+const db = studentsDb as StudentsJsonDatabase
+const TOTAL_HINTS = 6
+
+/**
+ * Build the full 6-slot hint array for a student.
+ * Slots present in the JSON → unlocked (show real text).
+ * Slots not in the JSON → locked (show placeholder).
+ */
+function buildHints(entry: StudentJsonEntry): StudentData['hints'] {
+  return Array.from({ length: TOTAL_HINTS }, (_, i) => {
+    const slot = i + 1
+    const found = entry.hints.find((h) => h.slot === slot)
+    if (found) {
+      return { slot, text: found.text, isUnlocked: true }
+    }
+    return { slot, text: '', isUnlocked: false }
+  })
+}
 
 export async function fetchStudentData(studentId: string): Promise<StudentData> {
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 300))
+  // Simulate a short async delay (mirrors a real API call)
+  await new Promise((resolve) => setTimeout(resolve, 200))
+
+  const entry = db.students.find(
+    (s) => s.id.toLowerCase() === studentId.toLowerCase(),
+  )
+
+  if (!entry) {
+    // Return an empty placeholder so the UI doesn't crash on unknown IDs
+    return {
+      id: studentId,
+      name: undefined,
+      hints: Array.from({ length: TOTAL_HINTS }, (_, i) => ({
+        slot: i + 1,
+        text: '',
+        isUnlocked: false,
+      })),
+    }
+  }
 
   return {
-    id: studentId,
-    name: `Student ${studentId}`,
-    hints: MOCK_HINTS,
-    imageUrl: undefined, // replace with actual student image URL
-    contactInfo: 'your_ig_handle',
+    id: entry.id,
+    name: entry.name,
+    hints: buildHints(entry),
   }
 }
 

@@ -10,9 +10,10 @@ export type ExperienceStage =
   | 'final'
 
 export interface HintItem {
-  id: string
-  label: string
-  daysLeft: number
+  /** Slot number 1–6 */
+  slot: number
+  /** The actual hint text (only meaningful when isUnlocked is true) */
+  text: string
   isUnlocked: boolean
 }
 
@@ -21,7 +22,6 @@ export interface StudentData {
   name?: string
   hints: HintItem[]
   imageUrl?: string
-  contactInfo?: string
 }
 
 export interface SceneProps {
@@ -33,4 +33,16 @@ export interface BackgroundAsset {
   src: string
   deviceType: 'mobile' | 'tablet' | 'desktop'
   sceneIndex: number
+}
+
+// ── JSON database shape ──────────────────────────────────────
+export interface StudentJsonEntry {
+  id: string
+  name: string
+  hints: Array<{ slot: number; text: string }>
+  isUnlocked: boolean
+}
+
+export interface StudentsJsonDatabase {
+  students: StudentJsonEntry[]
 }

@@ -9,6 +9,9 @@ import { useBackgroundForScene, useDeviceType } from '@/hooks/useResponsiveAsset
 import HintRow from './HintRow'
 import { SECRET_TEXT } from '@/config/secretDocumentText'
 
+// ── Your IG handle — change this once and it shows on every page ──
+const MY_IG = 'your_ig_here'
+
 interface SecretDocumentProps {
   studentData: StudentData
 }
@@ -88,22 +91,19 @@ export default function SecretDocument({ studentData }: SecretDocumentProps) {
               {textConfig.main}
             </p>
 
-            {/* Contact chip */}
-            {studentData.contactInfo && (
-              <div className="flex items-center gap-2 self-start">
-                {/* IG icon dot */}
-                <div
-                  className="w-1.5 h-1.5 rounded-full"
-                  style={{ backgroundColor: 'rgba(26,20,16,0.40)' }}
-                />
-                <p
-                  className="font-pixel text-inkBlack/55"
-                  style={{ fontSize: textConfig.contactFont }}
-                >
-                  IG : {studentData.contactInfo}
-                </p>
-              </div>
-            )}
+            {/* Contact chip — static IG */}
+            <div className="flex items-center gap-2 self-start">
+              <div
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ backgroundColor: 'rgba(26,20,16,0.40)' }}
+              />
+              <p
+                className="font-pixel text-inkBlack/55"
+                style={{ fontSize: textConfig.contactFont }}
+              >
+                IG : {MY_IG}
+              </p>
+            </div>
           </motion.div>
 
           {/* Thin separator line */}
@@ -123,7 +123,7 @@ export default function SecretDocument({ studentData }: SecretDocumentProps) {
           <div className={config.hintsContainerClass}>
             {studentData.hints.map((hint, i) => (
               <motion.div
-                key={hint.id}
+                key={hint.slot}
                 variants={listItemVariants}
                 custom={i}
                 initial="hidden"
