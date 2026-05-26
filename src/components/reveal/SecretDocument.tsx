@@ -1,20 +1,45 @@
 import { motion } from 'framer-motion'
 import type { StudentData } from '@/types'
 import {
-  titleRevealVariants,
   containerRevealVariants,
   listItemVariants,
   backgroundZoomVariants,
 } from '@/animations/revealAnimations'
-import { useBackgroundForScene } from '@/hooks/useResponsiveAsset'
+import { useBackgroundForScene, useDeviceType } from '@/hooks/useResponsiveAsset'
 import HintRow from './HintRow'
+import { SECRET_TEXT } from '@/config/secretDocumentText'
 
 interface SecretDocumentProps {
   studentData: StudentData
 }
 
+// Tune spacing per device to align elements on top of the background image slots
+const LAYOUT_CONFIG = {
+  desktop: {
+    topSpacerHeight: 'h-36 md:h-44',
+    containerWidth: 'max-w-lg md:max-w-xl px-10 pb-14',
+    infoGap: 'gap-2',
+    hintsContainerClass: 'mt-6 flex flex-col gap-3 pb-10',
+  },
+  tablet: {
+    topSpacerHeight: 'h-28',
+    containerWidth: 'max-w-md px-7 pb-10',
+    infoGap: 'gap-2',
+    hintsContainerClass: 'mt-5 flex flex-col gap-2.5 pb-8',
+  },
+  mobile: {
+    topSpacerHeight: 'h-20',
+    containerWidth: 'max-w-sm px-4 pb-8',
+    infoGap: 'gap-1.5',
+    hintsContainerClass: 'mt-4 flex flex-col gap-2 pb-6',
+  },
+}
+
 export default function SecretDocument({ studentData }: SecretDocumentProps) {
   const bgSrc = useBackgroundForScene('reveal')
+  const deviceType = useDeviceType()
+  const config = LAYOUT_CONFIG[deviceType]
+  const textConfig = SECRET_TEXT[deviceType]
 
   return (
     <div className="fixed inset-0 z-30 overflow-hidden">
@@ -40,96 +65,77 @@ export default function SecretDocument({ studentData }: SecretDocumentProps) {
       {/* Scrollable content layer */}
       <div className="absolute inset-0 overflow-y-auto flex items-start justify-center px-4 py-6 md:py-10">
         <motion.div
-          className="relative w-full max-w-sm md:max-w-md"
+          className={`relative w-full ${config.containerWidth}`}
           variants={containerRevealVariants}
           initial="hidden"
           animate="visible"
         >
-          {/* ── Document card ─────────────────────────────── */}
-          <div
-            className="
-              w-full rounded-2xl overflow-hidden
-              shadow-[0_20px_60px_rgba(0,0,0,0.25)]
-            "
-            style={{ backgroundColor: '#E8E3D8' }}
+          {/* Spacer — keeps the background's built-in top text visible */}
+          <div className={config.topSpacerHeight} />
+
+          {/* ── Info header ──────────────────────────────── */}
+          <motion.div
+            className={`flex flex-col ${config.infoGap} mb-5`}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.6, ease: 'easeOut' }}
           >
-            {/* Title bar */}
-            <motion.div
-              className="px-5 pt-6 pb-4"
-              variants={titleRevealVariants}
-              initial="hidden"
-              animate="visible"
+            {/* Main message */}
+            <p
+              className="font-pixel text-inkBlack/80 leading-loose"
+              style={{ fontSize: textConfig.mainFont }}
             >
-              <h1
-                className="font-pixel text-inkBlack text-center text-xs md:text-sm tracking-wider"
-                style={{ fontSize: 'clamp(9px, 2.5vw, 13px)' }}
-              >
-                SECRET DOCUMENT
-              </h1>
-            </motion.div>
+              {textConfig.main}
+            </p>
 
-            {/* Top section: image + info */}
-            <motion.div
-              className="mx-4 mb-4 flex gap-4 items-start"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9, duration: 0.7 }}
-            >
-              {/* Image placeholder */}
-              <div
-                className="shrink-0 w-28 h-28 md:w-36 md:h-36 rounded-xl overflow-hidden flex items-center justify-center"
-                style={{ backgroundColor: '#D0CAB8' }}
-              >
-                {studentData.imageUrl ? (
-                  <img
-                    src={studentData.imageUrl}
-                    alt="Student"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="font-pixel text-inkBlack/40 text-xs">IMAGE</span>
-                )}
-              </div>
-
-              {/* Info */}
-              <div className="flex-1 pt-1 flex flex-col gap-2">
+            {/* Contact chip */}
+            {studentData.contactInfo && (
+              <div className="flex items-center gap-2 self-start">
+                {/* IG icon dot */}
+                <div
+                  className="w-1.5 h-1.5 rounded-full"
+                  style={{ backgroundColor: 'rgba(26,20,16,0.40)' }}
+                />
                 <p
-                  className="font-pixel text-inkBlack/70 leading-relaxed"
-                  style={{ fontSize: 'clamp(7px, 2vw, 10px)' }}
+                  className="font-pixel text-inkBlack/55"
+                  style={{ fontSize: textConfig.contactFont }}
                 >
-                  คำใหม่จะมาในทุกๆ สัปดาห์
+                  IG : {studentData.contactInfo}
                 </p>
-                {studentData.contactInfo && (
-                  <p
-                    className="font-pixel text-inkBlack/50"
-                    style={{ fontSize: 'clamp(6px, 1.8vw, 9px)' }}
-                  >
-                    มีปัญหาติดต่อ IG : {studentData.contactInfo}
-                  </p>
-                )}
               </div>
-            </motion.div>
+            )}
+          </motion.div>
 
-            {/* Divider */}
-            <div className="mx-4 h-px bg-inkBlack/10 mb-1" />
+          {/* Thin separator line */}
+          <motion.div
+            className="w-full mb-5"
+            initial={{ scaleX: 0, opacity: 0 }}
+            animate={{ scaleX: 1, opacity: 1 }}
+            transition={{ delay: 1.1, duration: 0.5, ease: 'easeOut' }}
+            style={{
+              height: '1px',
+              transformOrigin: 'left',
+              background: 'linear-gradient(90deg, rgba(26,20,16,0.25) 0%, rgba(26,20,16,0.05) 100%)',
+            }}
+          />
 
-            {/* Hint rows */}
-            <div className="px-4 pb-6 flex flex-col gap-1.5 mt-3">
-              {studentData.hints.map((hint, i) => (
-                <motion.div
-                  key={hint.id}
-                  variants={listItemVariants}
-                  custom={i}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  <HintRow hint={hint} index={i} />
-                </motion.div>
-              ))}
-            </div>
+          {/* ── Hint list ────────────────────────────────── */}
+          <div className={config.hintsContainerClass}>
+            {studentData.hints.map((hint, i) => (
+              <motion.div
+                key={hint.id}
+                variants={listItemVariants}
+                custom={i}
+                initial="hidden"
+                animate="visible"
+              >
+                <HintRow hint={hint} index={i} />
+              </motion.div>
+            ))}
           </div>
         </motion.div>
       </div>
     </div>
   )
 }
+
