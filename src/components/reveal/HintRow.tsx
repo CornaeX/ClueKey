@@ -1,13 +1,15 @@
 import type { HintItem } from '@/types'
 import { useDeviceType } from '@/hooks/useResponsiveAsset'
 import { SECRET_TEXT } from '@/config/secretDocumentText'
+import { motion } from 'framer-motion'
 
 interface HintRowProps {
   hint: HintItem
   index: number
+  isLoading?: boolean
 }
 
-export default function HintRow({ hint, index }: HintRowProps) {
+export default function HintRow({ hint, index, isLoading = false }: HintRowProps) {
   const device = useDeviceType()
   const hintFont = SECRET_TEXT[device].hintFont
   const labelFont = SECRET_TEXT[device].slotFont
@@ -49,7 +51,19 @@ export default function HintRow({ hint, index }: HintRowProps) {
 
       {/* Main content column */}
       <div className="flex-1 min-w-0">
-        {hint.isUnlocked ? (
+        {isLoading ? (
+          /* ── LOADING: shimmer skeleton ── */
+          <motion.div
+            className="h-3 rounded-full"
+            style={{
+              width: `${65 + ((index * 17) % 30)}%`,
+              background: 'linear-gradient(90deg, rgba(26,20,16,0.08) 0%, rgba(26,20,16,0.16) 50%, rgba(26,20,16,0.08) 100%)',
+              backgroundSize: '200% 100%',
+            }}
+            animate={{ backgroundPosition: ['200% 0', '-200% 0'] }}
+            transition={{ duration: 1.4, repeat: Infinity, ease: 'linear', delay: index * 0.08 }}
+          />
+        ) : hint.isUnlocked ? (
           /* ── UNLOCKED: show the actual hint text ── */
           <p
             className="font-pixel leading-relaxed break-words"
@@ -114,7 +128,14 @@ export default function HintRow({ hint, index }: HintRowProps) {
             : '1px solid rgba(26,20,16,0.09)',
         }}
       >
-        {hint.isUnlocked ? (
+        {isLoading ? (
+          <motion.div
+            className="w-2 h-2 rounded-full"
+            style={{ backgroundColor: 'rgba(26,20,16,0.15)' }}
+            animate={{ opacity: [0.3, 0.8, 0.3] }}
+            transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut', delay: index * 0.1 }}
+          />
+        ) : hint.isUnlocked ? (
           <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
             <path
               d="M1 4L3 6L7 2"
@@ -136,7 +157,7 @@ export default function HintRow({ hint, index }: HintRowProps) {
             color: hint.isUnlocked ? 'rgba(26,20,16,0.60)' : 'rgba(26,20,16,0.22)',
           }}
         >
-          {hint.isUnlocked ? 'OPEN' : 'LOCK'}
+          {isLoading ? '···' : hint.isUnlocked ? 'OPEN' : 'LOCK'}
         </span>
       </div>
     </div>

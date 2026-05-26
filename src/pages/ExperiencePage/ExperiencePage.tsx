@@ -77,22 +77,9 @@ export default function ExperiencePage() {
         <CharacterScene onComplete={handleCharacterComplete} />
       )}
 
-      {/* Stage: Final Secret Document reveal */}
-      {stage === 'final' && studentData && (
+      {/* Stage: Final Secret Document reveal — mount immediately so it's ready under the cream */}
+      {stage === 'final' && (
         <SecretDocument studentData={studentData} />
-      )}
-
-      {/* Fallback while student data loads */}
-      {stage === 'final' && !studentData && (
-        <div className="absolute inset-0 flex items-center justify-center bg-cream">
-          <motion.p
-            className="font-pixel text-inkBlack/40 text-xs"
-            animate={{ opacity: [0.4, 1, 0.4] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          >
-            Decrypting...
-          </motion.p>
-        </div>
       )}
     </motion.div>
   )

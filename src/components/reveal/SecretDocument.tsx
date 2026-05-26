@@ -13,7 +13,7 @@ import { SECRET_TEXT } from '@/config/secretDocumentText'
 const MY_IG = 'your_ig_here'
 
 interface SecretDocumentProps {
-  studentData: StudentData
+  studentData: StudentData | null
 }
 
 // Tune spacing per device to align elements on top of the background image slots
@@ -121,7 +121,7 @@ export default function SecretDocument({ studentData }: SecretDocumentProps) {
 
           {/* ── Hint list ────────────────────────────────── */}
           <div className={config.hintsContainerClass}>
-            {studentData.hints.map((hint, i) => (
+            {(studentData?.hints ?? Array.from({ length: 6 }, (_, i) => ({ slot: i + 1, text: '', isUnlocked: false }))).map((hint, i) => (
               <motion.div
                 key={hint.slot}
                 variants={listItemVariants}
@@ -129,7 +129,7 @@ export default function SecretDocument({ studentData }: SecretDocumentProps) {
                 initial="hidden"
                 animate="visible"
               >
-                <HintRow hint={hint} index={i} />
+                <HintRow hint={hint} index={i} isLoading={!studentData} />
               </motion.div>
             ))}
           </div>
