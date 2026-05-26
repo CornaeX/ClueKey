@@ -1,7 +1,5 @@
 import type { StudentData, StudentJsonEntry, StudentsJsonDatabase } from '@/types'
-import studentsDb from '@/data/students.json'
 
-const db = studentsDb as StudentsJsonDatabase
 const TOTAL_HINTS = 6
 
 /**
@@ -21,15 +19,18 @@ function buildHints(entry: StudentJsonEntry): StudentData['hints'] {
 }
 
 export async function fetchStudentData(studentId: string): Promise<StudentData> {
-  // Simulate a short async delay (mirrors a real API call)
-  await new Promise((resolve) => setTimeout(resolve, 200))
+  // Fetch from /data/students.json at runtime — edit that file to update hints.
+  // No rebuild needed; this is the single source of truth.
+  const res = await fetch('/data/students.json')
+  if (!res.ok) throw new Error('Failed to load student data')
+  const db: StudentsJsonDatabase = await res.json()
 
   const entry = db.students.find(
     (s) => s.id.toLowerCase() === studentId.toLowerCase(),
   )
 
   if (!entry) {
-    // Return an empty placeholder so the UI doesn't crash on unknown IDs
+    // Unknown student — all slots locked
     return {
       id: studentId,
       name: undefined,

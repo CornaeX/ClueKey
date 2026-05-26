@@ -36,11 +36,12 @@ export interface BackgroundAsset {
 }
 
 // ── JSON database shape ──────────────────────────────────────
+// Only include slots that are unlocked; presence in the array = unlocked.
+// Do NOT add isUnlocked here — unlock state is derived automatically.
 export interface StudentJsonEntry {
   id: string
   name: string
   hints: Array<{ slot: number; text: string }>
-  isUnlocked: boolean
 }
 
 export interface StudentsJsonDatabase {
