@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { pageEnterVariants } from '@/animations/cinematicAnimations'
@@ -9,16 +9,39 @@ import { fetchStudentData } from '@/utils/studentData'
 import { useAllBackgroundsForDevice, useBackgroundForScene } from '@/hooks/useResponsiveAsset'
 import { usePreloadAssets } from '@/hooks/usePreloadAssets'
 import { ANIMATION_CONFIG } from '@/config/animationConfig'
-import type { ExperienceStage, StudentData } from '@/types'
+import type { ExperienceStage } from '@/types'
+import type { StudentData } from '@/types'
+
+// ─── localStorage key ─────────────────────────────────────────────────────────
+const FIRST_VISIT_KEY = 'cluekey_has_seen_intro'
+
+function hasSeenIntro(): boolean {
+  try {
+    return localStorage.getItem(FIRST_VISIT_KEY) === 'true'
+  } catch {
+    return false
+  }
+}
+
+function markIntroSeen(): void {
+  try {
+    localStorage.setItem(FIRST_VISIT_KEY, 'true')
+  } catch {
+    // localStorage unavailable — silently ignore
+  }
+}
+
+// ─── ExperiencePage ───────────────────────────────────────────────────────────
 
 export default function ExperiencePage() {
   const { studentId } = useParams<{ studentId: string }>()
+  const isReturningUser = useRef(hasSeenIntro())
 
-  // ── Flow control ────────────────────────────────────────────
-  // Mode A (skipWaitingScreen: false): login → waiting → final
-  // Mode B (skipWaitingScreen: true):  login → final
-  const initialStage: ExperienceStage = ANIMATION_CONFIG.skipWaitingScreen ? 'final' : 'waiting'
-  const [stage, setStage] = useState<ExperienceStage>(initialStage)
+  // Returning users skip straight to 'final' (door already open, no stopmotion).
+  // First-time users start at 'waiting' as normal.
+  const [stage, setStage] = useState<ExperienceStage>(
+    isReturningUser.current ? 'final' : 'waiting',
+  )
   const [studentData, setStudentData] = useState<StudentData | null>(null)
 
   const allBackgrounds = useAllBackgroundsForDevice()
@@ -28,18 +51,16 @@ export default function ExperiencePage() {
 
   const cinematicBg = useBackgroundForScene('cinematic')
 
+  // Fetch student data on mount
   useEffect(() => {
     if (!studentId) return
     fetchStudentData(studentId).then(setStudentData)
   }, [studentId])
 
-  // After the door opens: skip stopmotion → go straight to final
   const handleWaitingOpened = () => {
-    if (ANIMATION_CONFIG.skipStopmotion) {
-      setStage('final')
-    } else {
-      setStage('character')
-    }
+    // Mark that this device has now seen the intro
+    markIntroSeen()
+    setStage('character')
   }
 
   const handleCharacterComplete = () => setStage('final')
@@ -52,7 +73,7 @@ export default function ExperiencePage() {
       animate="visible"
       exit="exit"
     >
-      {/* Preloading overlay */}
+      {/* Preloading overlay (only if assets haven't loaded yet) */}
       {preloadStatus === 'loading' && (
         <div className="absolute inset-0 z-[100] bg-deepNavy flex items-center justify-center">
           <motion.p
@@ -65,7 +86,7 @@ export default function ExperiencePage() {
         </div>
       )}
 
-      {/* Background behind the doors */}
+      {/* Background visible behind the doors */}
       {stage === 'waiting' && (
         <div
           className="absolute inset-0 z-0"
@@ -78,14 +99,17 @@ export default function ExperiencePage() {
         />
       )}
 
+      {/* Stage: Waiting — split-door (first visit only) */}
       {stage === 'waiting' && (
         <WaitingScreen onOpened={handleWaitingOpened} />
       )}
 
+      {/* Stage: Character cinematic (first visit only) */}
       {stage === 'character' && (
         <CharacterScene onComplete={handleCharacterComplete} />
       )}
 
+      {/* Stage: Final Secret Document reveal */}
       {stage === 'final' && (
         <SecretDocument studentData={studentData} />
       )}

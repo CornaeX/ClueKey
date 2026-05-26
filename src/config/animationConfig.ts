@@ -88,14 +88,16 @@ export const ANIMATION_CONFIG = {
     finalScale: 1.0,
     duration: 1.8,
     ease: [0.25, 0.46, 0.45, 0.94] as const,
-    delay: 0.3,
+    delay: 0,                      // cream overlay handles timing; start zoom immediately
   },
 
   // ── FINAL REVEAL (Secret Document) ───────────────────────
+  // Note: cream overlay fades out over ~1s; content delays are relative to
+  // SecretDocument mount time (which happens while cream is still covering).
   finalReveal: {
     containerDelay: 0.3,
     titleRevealDuration: 1.0,
-    titleRevealDelay: 0.5,
+    titleRevealDelay: 0.8,         // starts as cream finishes fading out
     imageRevealDelay: 0.9,
     imageRevealDuration: 0.8,
     listStaggerDelay: 0.12,       // s between each list item
