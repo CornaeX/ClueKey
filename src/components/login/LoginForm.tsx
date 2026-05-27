@@ -99,7 +99,7 @@ export default function LoginForm() {
 
     // Small artificial delay for cinematic feel
     await new Promise((r) => setTimeout(r, 400))
-    navigate(`/experience/${trimmed}`)
+    navigate(`/${trimmed}`)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

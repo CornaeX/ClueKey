@@ -8,7 +8,7 @@ export default function App() {
     <AnimatePresence mode="wait">
       <Routes>
         <Route path="/" element={<LoginPage />} />
-        <Route path="/experience/:studentId" element={<ExperiencePage />} />
+        <Route path="/:studentId" element={<ExperiencePage />} />
       </Routes>
     </AnimatePresence>
   )
