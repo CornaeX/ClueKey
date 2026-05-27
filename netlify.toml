@@ -1,12 +1,7 @@
-# ClueKey - Hardened Netlify Configuration
 [build]
   command = "npm run build"
   publish = "dist"
 
-[build.environment]
-  NODE_VERSION = "20"
-
-# Security headers applied at the edge
 [[headers]]
   for = "/*"
   [headers.values]
@@ -14,17 +9,9 @@
     X-Frame-Options = "DENY"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
-    # Strict CSP — blocks inline scripts, only allows same-origin
-    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'none'"
 
-# Rate limiting — direct counter to HTTP Flood/Slowloris
+# Edge function: rate limiter runs on all routes
 [[edge_functions]]
   function = "rate-limiter"
   path = "/*"
-
-# Redirect all non-www to www (or vice versa) — prevent domain confusion
-[[redirects]]
-  from = "https://cluekey.netlify.app/*"
-  to = "https://www.cluekey.netlify.app/:splat"
-  status = 301
-  force = true
