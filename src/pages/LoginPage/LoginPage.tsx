@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import LoginForm from '@/components/login/LoginForm'
 import LogoDisplay from '@/components/login/LogoDisplay'
@@ -6,20 +7,33 @@ import { pageEnterVariants } from '@/animations/cinematicAnimations'
 
 export default function LoginPage() {
   const bgSrc = useBackgroundForScene('login')
+  const [bgReady, setBgReady] = useState(false)
+
+  // The image was already preloaded by AppLoader, so this resolves instantly
+  // on deploy — the browser returns it from cache immediately.
+  useEffect(() => {
+    if (!bgSrc) return
+    const img = new Image()
+    img.onload  = () => setBgReady(true)
+    img.onerror = () => setBgReady(true) // graceful fallback
+    img.src = bgSrc
+    // Already cached? onload fires synchronously in some browsers
+    if (img.complete) setBgReady(true)
+  }, [bgSrc])
 
   return (
     <motion.div
       className="fixed inset-0 w-full h-full overflow-hidden"
       variants={pageEnterVariants}
       initial="hidden"
-      animate="visible"
+      animate={bgReady ? 'visible' : 'hidden'}
       exit="exit"
     >
       {/* Background */}
       <div
         className="absolute inset-0"
         style={{
-          backgroundImage: `url(${bgSrc})`,
+          backgroundImage: bgReady ? `url(${bgSrc})` : undefined,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundColor: '#1B2A4A',

@@ -2,17 +2,100 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Secret Document — Hint Unlock</title>
+
+    <!-- Preconnect to font servers as early as possible -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Load fonts with display=swap so text is visible immediately -->
     <link
       href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
       rel="stylesheet"
     />
+
+    <style>
+      /* ── Splash screen — pure CSS, zero JS, renders instantly ── */
+      #splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: #0D1B2A;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 28px;
+        /* Fade out when React adds the .splash-hidden class */
+        transition: opacity 0.5s ease, visibility 0.5s ease;
+      }
+      #splash.splash-hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      /* Gold spinner ring */
+      .splash-ring {
+        width: 56px;
+        height: 56px;
+        border: 3px solid rgba(200, 169, 110, 0.15);
+        border-top-color: #C8A96E;
+        border-radius: 50%;
+        animation: splash-spin 0.9s linear infinite;
+      }
+      @keyframes splash-spin {
+        to { transform: rotate(360deg); }
+      }
+
+      /* Pulsing inner dot */
+      .splash-dot {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background: #C8A96E;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation: splash-pulse 1.4s ease-in-out infinite;
+      }
+      @keyframes splash-pulse {
+        0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.8); }
+        50%       { opacity: 1;   transform: translate(-50%, -50%) scale(1.2); }
+      }
+
+      /* Progress bar */
+      .splash-bar-track {
+        width: 160px;
+        height: 2px;
+        background: rgba(200, 169, 110, 0.15);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .splash-bar-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #C8A96E, #F0D090);
+        border-radius: 2px;
+        transition: width 0.3s ease;
+      }
+    </style>
   </head>
   <body>
+    <!-- Instant splash — visible before any JS executes -->
+    <div id="splash">
+      <div style="position:relative;width:56px;height:56px;">
+        <div class="splash-ring"></div>
+        <div class="splash-dot"></div>
+      </div>
+      <div class="splash-bar-track">
+        <div class="splash-bar-fill" id="splash-bar"></div>
+      </div>
+    </div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
