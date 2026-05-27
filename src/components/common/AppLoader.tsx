@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { BACKGROUND_SCENES, GEAR_IMAGE, STUDENT_ID_ICON, STUDENT_ID_TEXT } from '@/config/responsiveConfig'
 
 // All assets that must be cached before the login page renders
@@ -25,7 +25,6 @@ interface AppLoaderProps {
 }
 
 export default function AppLoader({ children }: AppLoaderProps) {
-  const [ready, setReady] = useState(false)
   const splashRef = useRef<HTMLDivElement | null>(null)
   const barRef = useRef<HTMLElement | null>(null)
 
@@ -61,7 +60,6 @@ export default function AppLoader({ children }: AppLoaderProps) {
         setTimeout(() => {
           splashRef.current?.remove()
         }, 600)
-        setReady(true)
       }, 120)
     })
   }, [])
