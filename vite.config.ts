@@ -12,6 +12,6 @@ export default defineConfig({
   assetsInclude: ['**/*.webm', '**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.gif'],
 
   server: {
-    allowedHosts: ['localhost', '127.0.0.1', 'd009-171-97-29-4.ngrok-free.app'],
+    allowedHosts: ['localhost', '127.0.0.1', 'cluekey.netlify.app'],
   },
 })
